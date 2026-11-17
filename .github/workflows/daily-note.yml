@@ -1,0 +1,36 @@
+name: Daily note
+
+on:
+  schedule:
+    # 02:00 UTC is 07:30 in India (IST, UTC+5:30)
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  write-note:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Add today's note
+        shell: bash
+        env:
+          AUTHOR_NAME: Avinash Singh
+          AUTHOR_EMAIL: 356221064+avinashsinghtech@users.noreply.github.com
+        run: |
+          set -euo pipefail
+          date_stamp="$(date -u +%Y-%m-%d)"
+          mkdir -p notes
+          file="notes/${date_stamp}.md"
+          if [ -f "$file" ]; then
+            echo "Note for ${date_stamp} already exists."
+            exit 0
+          fi
+          printf '# %s\n\nDaily note by Avinash Singh.\n' "$date_stamp" > "$file"
+          git -c user.name="$AUTHOR_NAME" -c user.email="$AUTHOR_EMAIL" add "$file"
+          git -c user.name="$AUTHOR_NAME" -c user.email="$AUTHOR_EMAIL" commit -m "Add daily note for ${date_stamp}"
+          git push
