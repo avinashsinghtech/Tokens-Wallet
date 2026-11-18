@@ -25,7 +25,7 @@ jobs:
           next=""
           while IFS= read -r path; do
             case "$path" in
-              .env|*/.env) continue ;;
+              .DS_Store|*/.DS_Store|.env|*/.env) continue ;;
             esac
             if [ ! -f "synced/$path" ]; then
               next="$path"
