@@ -1,3 +1,3 @@
 # Tokens Wallet
 
-`synced/` holds selected files from the agent wallet project. A daily job refreshes that copy.
+`synced/` receives the agent wallet project one file at a time. Each morning the next file that is not already here is copied in.

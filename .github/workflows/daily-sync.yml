@@ -16,27 +16,31 @@ jobs:
       - name: Check out Tokens Wallet
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Copy selected project files
+      - name: Copy the next project file
         shell: bash
         run: |
           set -euo pipefail
           rm -rf /tmp/agent-wallet-sdk
           git clone --depth 1 https://github.com/up2itnow0822/agent-wallet-sdk.git /tmp/agent-wallet-sdk
-          rm -rf synced
-          mkdir -p synced/src/tokens
-          cp /tmp/agent-wallet-sdk/package.json synced/package.json
-          cp /tmp/agent-wallet-sdk/LICENSE synced/LICENSE
-          cp /tmp/agent-wallet-sdk/src/tokens/index.ts synced/src/tokens/index.ts
-          cp /tmp/agent-wallet-sdk/src/tokens/registry.ts synced/src/tokens/registry.ts
-          cp /tmp/agent-wallet-sdk/src/tokens/transfers.ts synced/src/tokens/transfers.ts
-          cp /tmp/agent-wallet-sdk/src/tokens/solana.ts synced/src/tokens/solana.ts
-          cp /tmp/agent-wallet-sdk/src/tokens/decimals.ts synced/src/tokens/decimals.ts
-          date_stamp="$(TZ=Asia/Kolkata date +%Y-%m-%d)"
-          line="${date_stamp} synced package.json, LICENSE, and src/tokens from agent-wallet-sdk"
-          touch sync-log.txt
-          if ! grep -qxF "$line" sync-log.txt; then
-            printf '%s\n' "$line" >> sync-log.txt
+          next=""
+          while IFS= read -r path; do
+            case "$path" in
+              .env|*/.env) continue ;;
+            esac
+            if [ ! -f "synced/$path" ]; then
+              next="$path"
+              break
+            fi
+          done < <(git -C /tmp/agent-wallet-sdk ls-files | LC_ALL=C sort)
+          if [ -z "$next" ]; then
+            echo "Every project file is already in synced/."
+            exit 0
           fi
+          mkdir -p "synced/$(dirname "$next")"
+          cp "/tmp/agent-wallet-sdk/$next" "synced/$next"
+          date_stamp="$(TZ=Asia/Kolkata date +%Y-%m-%d)"
+          printf '%s %s\n' "$date_stamp" "$next" >> sync-log.txt
+          printf '%s\n' "$next" > /tmp/next-file.txt
 
       - name: Commit and push
         shell: bash
@@ -45,11 +49,16 @@ jobs:
           AUTHOR_EMAIL: 356221064+avinashsinghtech@users.noreply.github.com
         run: |
           set -euo pipefail
+          if [ ! -f /tmp/next-file.txt ]; then
+            echo "No new file to commit."
+            exit 0
+          fi
+          next="$(cat /tmp/next-file.txt)"
           git -c user.name="$AUTHOR_NAME" -c user.email="$AUTHOR_EMAIL" add synced sync-log.txt
           if git diff --cached --quiet; then
-            echo "Today's sync is already committed."
+            echo "Today's file is already committed."
             exit 0
           fi
           date_stamp="$(TZ=Asia/Kolkata date +%Y-%m-%d)"
-          git -c user.name="$AUTHOR_NAME" -c user.email="$AUTHOR_EMAIL" commit -m "Sync project files for ${date_stamp}"
+          git -c user.name="$AUTHOR_NAME" -c user.email="$AUTHOR_EMAIL" commit -m "Add ${next} for ${date_stamp}"
           git push
