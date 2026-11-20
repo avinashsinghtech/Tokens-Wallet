@@ -3,3 +3,4 @@
 2026-11-18 .DS_Store
 2026-11-18 .coderabbit.yaml
 2026-11-19 .env.example
+2026-11-20 .github/AGENTS.md
