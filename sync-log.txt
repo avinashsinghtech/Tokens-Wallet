@@ -5,3 +5,4 @@
 2026-11-19 .env.example
 2026-11-20 .github/AGENTS.md
 2026-11-21 .github/dependabot.yml
+2026-11-22 .github/workflows/build.yml
