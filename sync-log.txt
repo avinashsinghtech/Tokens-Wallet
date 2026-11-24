@@ -7,3 +7,4 @@
 2026-11-21 .github/dependabot.yml
 2026-11-22 .github/workflows/build.yml
 2026-11-23 .github/workflows/ci.yml
+2026-11-24 .github/workflows/security-review.yml
