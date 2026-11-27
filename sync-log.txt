@@ -10,3 +10,4 @@
 2026-11-24 .github/workflows/security-review.yml
 2026-11-25 .gitignore
 2026-11-26 .gitleaksignore
+2026-11-27 AGENTS.md
