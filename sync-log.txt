@@ -11,3 +11,4 @@
 2026-11-25 .gitignore
 2026-11-26 .gitleaksignore
 2026-11-27 AGENTS.md
+2026-11-28 CHANGELOG.md
